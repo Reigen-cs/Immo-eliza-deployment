@@ -1,4 +1,4 @@
-import streamlit_app as st
+import streamlit as st
 import requests
 import json
 from datetime import datetime
@@ -57,7 +57,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Configuration
-API_BASE_URL = "https://your-render-app-url.onrender.com"  # Replace with your actual Render URL
+API_BASE_URL = "https://immo-eliza-deployment-01ya.onrender.com"  
 
 # Helper functions
 def check_api_health():
