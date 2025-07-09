@@ -36,8 +36,8 @@ def get_theme_css(dark_mode):
         }}
         
         .hero-section {{
-            background: linear-gradient(135deg, rgba(52, 152, 219, 0.9), rgba(155, 89, 182, 0.9)), 
-                       url('https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
             background-size: cover;
             background-position: center;
             color: white;
@@ -120,7 +120,25 @@ def get_theme_css(dark_mode):
             transition: all 0.3s ease !important;
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
         }}
-        
+
+        .stButton > button[kind="primary"] {{
+            background: linear-gradient(135deg, #3498db, #2980b9) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 0.75rem 2rem !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+        }}
+
+        .stButton > button[kind="primary"]:hover {{
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+            background: linear-gradient(135deg, #2980b9, #1f618d) !important;
+        }}
+
         .stButton > button:hover {{
             transform: translateY(-2px) !important;
             box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
@@ -421,7 +439,7 @@ def main():
                     
                     with col3_2:
                         has_dressing_room = st.checkbox("👔 Dressing Room", value=False)
-                        has_lift = st.checkbox("⬆️⬇️ Elevator", value=False)
+                        has_lift = st.checkbox("🛗 Elevator", value=False)
                         has_swimming_pool = st.checkbox("🏊 Swimming Pool", value=False)
                         has_air_conditioning = st.checkbox("❄️ Air Conditioning", value=False)
                     
