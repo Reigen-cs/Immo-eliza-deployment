@@ -12,49 +12,305 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better styling
-st.markdown("""
-<style>
-    .main-header {
-        background: linear-gradient(90deg, #3498db, #2980b9);
-        color: white;
-        padding: 1rem;
-        border-radius: 10px;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .prediction-result {
-        background: linear-gradient(90deg, #27ae60, #2ecc71);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        text-align: center;
-        font-size: 1.2rem;
-        margin: 1rem 0;
-    }
-    .error-message {
-        background: #e74c3c;
-        color: white;
-        padding: 1rem;
-        border-radius: 5px;
-        margin: 1rem 0;
-    }
-    .info-box {
-        background: #ecf0f1;
-        padding: 1rem;
-        border-radius: 5px;
-        border-left: 4px solid #3498db;
-        margin: 1rem 0;
-    }
-    .metric-card {
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Initialize dark mode state
+if 'dark_mode' not in st.session_state:
+    st.session_state.dark_mode = False
+
+# Custom CSS for better styling with dark/light mode
+def get_theme_css(dark_mode):
+    if dark_mode:
+        return """
+        <style>
+            .stApp {
+                background-color: #0E1117;
+                color: #FAFAFA;
+            }
+            
+            .main-header {
+                background: linear-gradient(90deg, #3498db, #2980b9);
+                color: white;
+                padding: 1rem;
+                border-radius: 10px;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            
+            .hero-section {
+                background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                color: white;
+                text-align: center;
+                padding: 4rem 2rem;
+                border-radius: 15px;
+                margin-bottom: 3rem;
+            }
+            
+            .hero-title {
+                font-size: 3rem;
+                font-weight: bold;
+                margin-bottom: 1rem;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            }
+            
+            .hero-subtitle {
+                font-size: 1.5rem;
+                margin-bottom: 0;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            }
+            
+            .prediction-result {
+                background: linear-gradient(90deg, #27ae60, #2ecc71);
+                color: white;
+                padding: 1.5rem;
+                border-radius: 10px;
+                text-align: center;
+                font-size: 1.2rem;
+                margin: 1rem 0;
+            }
+            
+            .error-message {
+                background: #e74c3c;
+                color: white;
+                padding: 1rem;
+                border-radius: 5px;
+                margin: 1rem 0;
+            }
+            
+            .info-box {
+                background: #262730;
+                color: #FAFAFA;
+                padding: 1rem;
+                border-radius: 5px;
+                border-left: 4px solid #3498db;
+                margin: 1rem 0;
+            }
+            
+            .metric-card {
+                background: #262730;
+                color: #FAFAFA;
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                text-align: center;
+            }
+            
+            .stButton > button {
+                background: linear-gradient(90deg, #3498db, #2980b9) !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 8px !important;
+                padding: 0.75rem 2rem !important;
+                font-size: 1.1rem !important;
+                font-weight: bold !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .stButton > button:hover {
+                background: linear-gradient(90deg, #2980b9, #1f618d) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+            }
+            
+            .footer {
+                background: #262730;
+                color: white;
+                padding: 2rem;
+                border-radius: 10px;
+                text-align: center;
+                margin-top: 3rem;
+            }
+            
+            .footer h3 {
+                margin-bottom: 1rem;
+                color: #3498db;
+            }
+            
+            .footer p {
+                margin: 0.5rem 0;
+                opacity: 0.9;
+            }
+            
+            .theme-toggle {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 999;
+                background: #262730;
+                border: 2px solid #3498db;
+                border-radius: 25px;
+                padding: 8px 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .theme-toggle:hover {
+                background: #3498db;
+                transform: scale(1.05);
+            }
+            
+            .theme-toggle-text {
+                color: #FAFAFA;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            
+            .sidebar .stSelectbox label, .sidebar .stNumberInput label, .sidebar .stTextInput label {
+                color: #FAFAFA !important;
+            }
+        </style>
+        """
+    else:
+        return """
+        <style>
+            .stApp {
+                background-color: #FFFFFF;
+                color: #262730;
+            }
+            
+            .main-header {
+                background: linear-gradient(90deg, #3498db, #2980b9);
+                color: white;
+                padding: 1rem;
+                border-radius: 10px;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            
+            .hero-section {
+                background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                color: white;
+                text-align: center;
+                padding: 4rem 2rem;
+                border-radius: 15px;
+                margin-bottom: 3rem;
+            }
+            
+            .hero-title {
+                font-size: 3rem;
+                font-weight: bold;
+                margin-bottom: 1rem;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            }
+            
+            .hero-subtitle {
+                font-size: 1.5rem;
+                margin-bottom: 0;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            }
+            
+            .prediction-result {
+                background: linear-gradient(90deg, #27ae60, #2ecc71);
+                color: white;
+                padding: 1.5rem;
+                border-radius: 10px;
+                text-align: center;
+                font-size: 1.2rem;
+                margin: 1rem 0;
+            }
+            
+            .error-message {
+                background: #e74c3c;
+                color: white;
+                padding: 1rem;
+                border-radius: 5px;
+                margin: 1rem 0;
+            }
+            
+            .info-box {
+                background: #ecf0f1;
+                padding: 1rem;
+                border-radius: 5px;
+                border-left: 4px solid #3498db;
+                margin: 1rem 0;
+            }
+            
+            .metric-card {
+                background: white;
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            
+            .stButton > button {
+                background: linear-gradient(90deg, #3498db, #2980b9) !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 8px !important;
+                padding: 0.75rem 2rem !important;
+                font-size: 1.1rem !important;
+                font-weight: bold !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .stButton > button:hover {
+                background: linear-gradient(90deg, #2980b9, #1f618d) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+            }
+            
+            .footer {
+                background: #34495e;
+                color: white;
+                padding: 2rem;
+                border-radius: 10px;
+                text-align: center;
+                margin-top: 3rem;
+            }
+            
+            .footer h3 {
+                margin-bottom: 1rem;
+                color: #3498db;
+            }
+            
+            .footer p {
+                margin: 0.5rem 0;
+                opacity: 0.9;
+            }
+            
+            .theme-toggle {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 999;
+                background: white;
+                border: 2px solid #3498db;
+                border-radius: 25px;
+                padding: 8px 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            .theme-toggle:hover {
+                background: #3498db;
+                transform: scale(1.05);
+            }
+            
+            .theme-toggle-text {
+                color: #262730;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            
+            .theme-toggle:hover .theme-toggle-text {
+                color: white;
+            }
+        </style>
+        """
+
+st.markdown(get_theme_css(st.session_state.dark_mode), unsafe_allow_html=True)
 
 # Configuration
 API_BASE_URL = "https://immo-eliza-deployment-01ya.onrender.com"  
@@ -87,11 +343,20 @@ def make_prediction(data):
 
 # Main app
 def main():
-    # Header
+    # Theme toggle button
+    theme_col1, theme_col2 = st.columns([6, 1])
+    with theme_col2:
+        if st.button(f"{'🌙' if not st.session_state.dark_mode else '☀️'} {'Dark' if not st.session_state.dark_mode else 'Light'}", 
+                    key="theme_toggle", 
+                    help="Toggle dark/light mode"):
+            st.session_state.dark_mode = not st.session_state.dark_mode
+            st.rerun()
+    
+    # Hero Header with Background Image
     st.markdown("""
-    <div class="main-header">
-        <h1>🏠 Belgian Real Estate Price Predictor</h1>
-        <p>Get AI-powered price predictions for Belgian properties</p>
+    <div class="hero-section">
+        <div class="hero-title">House Price Prediction Using</div>
+        <div class="hero-subtitle">Machine Learning</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -275,7 +540,7 @@ def main():
     with col2:
         st.subheader("📊 Quick Stats")
         
-        # Sample statistics (you can replace with real data)
+        
         st.markdown("""
         <div class="info-box">
             <h4>💡 Tips for Better Predictions</h4>
@@ -305,14 +570,15 @@ def main():
         if st.button("🔄 Refresh API Status"):
             st.rerun()
 
-# Footer
-st.markdown("""
----
-<div style="text-align: center; color: #7f8c8d;">
-    <p>🏠 Belgian Real Estate Price Predictor | Powered by Machine Learning</p>
-    <p>Built with Streamlit & FastAPI</p>
-</div>
-""", unsafe_allow_html=True)
+    # Footer
+    st.markdown("""
+    <div class="footer">
+        <h3>🏠 Belgian Real Estate Price Predictor</h3>
+        <p>Powered by Machine Learning</p>
+        <p>Built with Streamlit & FastAPI</p>
+        <p><strong>Made by Floriane, Hanieh and Younes</strong></p>
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
