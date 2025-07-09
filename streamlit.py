@@ -111,7 +111,7 @@ def get_theme_css(dark_mode):
         
         .stButton > button {{
             background: linear-gradient(135deg, #3498db, #2980b9) !important;
-            color: white !important;
+            color: blue !important;
             border: none !important;
             border-radius: 12px !important;
             padding: 0.75rem 2rem !important;
@@ -433,7 +433,7 @@ def main():
                         has_photovoltaic = st.checkbox("☀️ Solar Panels", value=False)
                 
                 # Submit button
-                submitted = st.form_submit_button("🔮 Get Price Prediction", use_container_width=True)
+                submitted = st.button("🔮 Get Price Prediction", use_container_width=True)
                 
                 if submitted:
                     # Prepare data
