@@ -109,35 +109,22 @@ def get_theme_css(dark_mode):
             margin: 0.5rem 0;
         }}
         
-        /* Consistent button styling for all buttons */
         .stButton > button {{
-            background-color: {"#262730" if dark_mode else "#FFFFFF"} !important;
-            color: {"#FAFAFA" if dark_mode else "#262730"} !important;
-            border: 1px solid {"#404552" if dark_mode else "#E1E8ED"} !important;
-            border-radius: 6px !important;
-            padding: 0.5rem 1rem !important;
-            font-size: 0.875rem !important;
-            font-weight: 400 !important;
+            background: linear-gradient(135deg, #3498db, #2980b9) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 0.75rem 2rem !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
             transition: all 0.3s ease !important;
-            box-shadow: none !important;
-            text-decoration: none !important;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
         }}
+
 
         .stButton > button:hover {{
-            background-color: {"#404552" if dark_mode else "#F8F9FA"} !important;
-            border-color: {"#5a6372" if dark_mode else "#D1D8DD"} !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }}
-
-        .stButton > button:focus {{
-            outline: none !important;
-            box-shadow: 0 0 0 2px {"#FF4B4B" if dark_mode else "#FF4B4B"} !important;
-        }}
-
-        .stButton > button:active {{
-            background-color: {"#404552" if dark_mode else "#E1E8ED"} !important;
-            transform: none !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
         }}
         
         .error-alert {{
