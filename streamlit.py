@@ -8,7 +8,7 @@ import json
 
 # Import your preprocessing and prediction functions
 try:
-    from preprocess import preprocess
+    from preprocessing import preprocess
     from predict import predict, load_model
 except ImportError:
     st.error("Please ensure preprocess.py and predict.py are in the same directory as this Streamlit app.")
