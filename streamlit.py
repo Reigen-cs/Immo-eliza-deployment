@@ -1,18 +1,7 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import joblib
-import os
+import requests
 from datetime import datetime
-import json
-
-# Import your preprocessing and prediction functions
-try:
-    from preprocessing import preprocess
-    from predict import predict, load_model
-except ImportError:
-    st.error("Please ensure preprocess.py and predict.py are in the same directory as this Streamlit app.")
-    st.stop()
 
 # Page configuration
 st.set_page_config(
@@ -67,20 +56,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Load model on startup
-@st.cache_resource
-def load_ml_model():
-    """Load the machine learning model"""
-    model = load_model()
-    if model is None:
-        st.error("❌ Could not load the ML model. Please ensure 'Immo_ML.pkl' is in the 'model' directory.")
-        st.stop()
-    return model
-
 # Initialize session state
-if 'model' not in st.session_state:
-    st.session_state.model = load_ml_model()
-    
 if 'prediction_history' not in st.session_state:
     st.session_state.prediction_history = []
 
@@ -184,7 +160,6 @@ with col1:
         "🏡 Terrace": f"{terrace_surface} m²" if has_terrace else "No"
     }
     
-    # Display summary in a nice format
     for key, value in property_summary.items():
         st.write(f"**{key}:** {value}")
 
@@ -192,7 +167,7 @@ with col2:
     st.markdown('<h2 class="sub-header">🔮 Make Prediction</h2>', unsafe_allow_html=True)
     
     if st.button("🚀 Predict Price", type="primary", use_container_width=True):
-        # Prepare data for prediction
+        # Prepare data for API call
         house_data = {
             "bedroomCount": bedroom_count,
             "bathroomCount": bathroom_count,
@@ -224,79 +199,67 @@ with col2:
         }
         
         try:
-            # Show loading spinner
-            with st.spinner("🔄 Analyzing property and making prediction..."):
-                # Preprocess data
-                preprocessed_data = preprocess(house_data)
+            with st.spinner("🔄 Contacting prediction API..."):
+                response = requests.post(
+                    "https://immo-eliza-deployment-01ya.onrender.com/predict",
+                    json=house_data,
+                    timeout=30
+                )
                 
-                # Make prediction
-                predicted_price = predict(preprocessed_data)
-                
-                if predicted_price is not None:
-                    # Display prediction
-                    st.markdown(f"""
-                    <div class="prediction-box">
-                        <h3>💰 Predicted Price</h3>
-                        <div class="prediction-price">€{predicted_price:,.2f}</div>
-                        <p><small>Price prediction based on current market data</small></p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                if response.status_code == 200:
+                    result = response.json()
+                    predicted_price = result.get("predicted_price", None)
                     
-                    # Add to history
-                    prediction_record = {
-                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "price": predicted_price,
-                        "property_type": property_type,
-                        "province": province,
-                        "surface": habitable_surface,
-                        "bedrooms": bedroom_count
-                    }
-                    st.session_state.prediction_history.append(prediction_record)
-                    
-                    # Price insights
-                    st.markdown('<h3 class="sub-header">💡 Price Insights</h3>', unsafe_allow_html=True)
-                    
-                    price_per_sqm = predicted_price / habitable_surface
-                    st.write(f"**Price per m²:** €{price_per_sqm:,.2f}")
-                    
-                    # Price category
-                    if predicted_price < 200000:
-                        category = "💚 Budget-friendly"
-                    elif predicted_price < 400000:
-                        category = "🟡 Mid-range"
-                    elif predicted_price < 600000:
-                        category = "🟠 Premium"
+                    if predicted_price is not None:
+                        st.markdown(f"""
+                        <div class="prediction-box">
+                            <h3>💰 Predicted Price</h3>
+                            <div class="prediction-price">€{predicted_price:,.2f}</div>
+                            <p><small>Price prediction based on current market data</small></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        prediction_record = {
+                            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "price": predicted_price,
+                            "property_type": property_type,
+                            "province": province,
+                            "surface": habitable_surface,
+                            "bedrooms": bedroom_count
+                        }
+                        st.session_state.prediction_history.append(prediction_record)
+                        
+                        price_per_sqm = predicted_price / habitable_surface
+                        st.write(f"**Price per m²:** €{price_per_sqm:,.2f}")
+                        
+                        if predicted_price < 200000:
+                            category = "💚 Budget-friendly"
+                        elif predicted_price < 400000:
+                            category = "🟡 Mid-range"
+                        elif predicted_price < 600000:
+                            category = "🟠 Premium"
+                        else:
+                            category = "🔴 Luxury"
+                            
+                        st.write(f"**Price Category:** {category}")
+                        
                     else:
-                        category = "🔴 Luxury"
-                    
-                    st.write(f"**Price Category:** {category}")
-                    
+                        st.error("❌ No prediction returned from API.")
                 else:
-                    st.error("❌ Could not make prediction. Please check your inputs.")
+                    st.error(f"API Error ({response.status_code}): {response.text}")
                     
         except Exception as e:
-            st.error(f"❌ Error making prediction: {str(e)}")
-            st.write("Please check that all required files are present and try again.")
+            st.error(f"❌ Error calling API: {str(e)}")
 
 # Prediction History
 if st.session_state.prediction_history:
     st.markdown('<h2 class="sub-header">📈 Recent Predictions</h2>', unsafe_allow_html=True)
     
-    # Convert to DataFrame for better display
     history_df = pd.DataFrame(st.session_state.prediction_history)
     history_df['price_formatted'] = history_df['price'].apply(lambda x: f"€{x:,.2f}")
     
-    # Show last 5 predictions
     st.dataframe(
         history_df[['timestamp', 'price_formatted', 'property_type', 'province', 'surface', 'bedrooms']].tail(5),
-        column_config={
-            'timestamp': 'Time',
-            'price_formatted': 'Predicted Price',
-            'property_type': 'Type',
-            'province': 'Province',
-            'surface': 'Surface (m²)',
-            'bedrooms': 'Bedrooms'
-        },
         hide_index=True,
         use_container_width=True
     )
@@ -305,7 +268,7 @@ if st.session_state.prediction_history:
         st.session_state.prediction_history = []
         st.rerun()
 
-# Footer with information
+# Footer
 st.markdown("---")
 st.markdown("""
 <div class="info-box">
@@ -316,19 +279,5 @@ st.markdown("""
     <p><strong>Disclaimer:</strong> Predictions are estimates based on historical data and should not be 
     considered as professional property valuations. Always consult with real estate professionals 
     for accurate assessments.</p>
-</div>
-""", unsafe_allow_html=True)
-
-# Information about required files
-st.markdown("""
-<div class="warning-box">
-    <h4>⚠️ Required Files</h4>
-    <p>To run this application, make sure you have the following files in your directory:</p>
-    <ul>
-        <li><code>preprocess.py</code> - Data preprocessing functions</li>
-        <li><code>predict.py</code> - Prediction functions</li>
-        <li><code>model/Immo_ML.pkl</code> - Trained XGBoost model</li>
-        <li><code>georef-belgium-postal-codes.csv</code> - Geographic data (optional)</li>
-    </ul>
 </div>
 """, unsafe_allow_html=True)
