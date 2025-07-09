@@ -121,23 +121,6 @@ def get_theme_css(dark_mode):
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
         }}
 
-        .stButton > button[kind="primary"] {{
-            background: linear-gradient(135deg, #3498db, #2980b9) !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 12px !important;
-            padding: 0.75rem 2rem !important;
-            font-size: 1rem !important;
-            font-weight: 600 !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
-        }}
-
-        .stButton > button[kind="primary"]:hover {{
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
-            background: linear-gradient(135deg, #2980b9, #1f618d) !important;
-        }}
 
         .stButton > button:hover {{
             transform: translateY(-2px) !important;
@@ -439,7 +422,7 @@ def main():
                     
                     with col3_2:
                         has_dressing_room = st.checkbox("👔 Dressing Room", value=False)
-                        has_lift = st.checkbox("🛗 Elevator", value=False)
+                        has_lift = st.checkbox("⬆️⬇️ Elevator", value=False)
                         has_swimming_pool = st.checkbox("🏊 Swimming Pool", value=False)
                         has_air_conditioning = st.checkbox("❄️ Air Conditioning", value=False)
                     
@@ -450,7 +433,7 @@ def main():
                         has_photovoltaic = st.checkbox("☀️ Solar Panels", value=False)
                 
                 # Submit button
-                submitted = st.form_submit_button("🔮 Get Price Prediction", type="primary", use_container_width=True)
+                submitted = st.form_submit_button("🔮 Get Price Prediction", use_container_width=True)
                 
                 if submitted:
                     # Prepare data
